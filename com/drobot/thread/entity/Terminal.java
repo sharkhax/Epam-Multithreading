@@ -8,17 +8,17 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class Terminal implements Runnable {
+public class Terminal {
 
     private static final Logger LOGGER = LogManager.getLogger(Terminal.class);
     private Optional<Truck> optionalTruck = Optional.empty();
-    private final int SERVICE_TIME_SECONDS = new Random().nextInt(5) + 3;
+    private final int SERVICE_TIME_SECONDS = new Random().nextInt(1) + 1;
 
     public Optional<Truck> getTruck() {
         return optionalTruck;
     }
 
-    public boolean removeTruckIfPresent() {
+    boolean removeTruckIfPresent() {
         boolean result = false;
         if (optionalTruck.isPresent()) {
             optionalTruck = Optional.empty();
@@ -30,41 +30,37 @@ public class Terminal implements Runnable {
         return result;
     }
 
-    public void setTruck(Truck truck) {
+    void setTruck(Truck truck) {
         this.optionalTruck = Optional.ofNullable(truck);
     }
 
-    public boolean service() {
+    boolean service() {
         boolean result = false;
         if (optionalTruck.isPresent()) {
-            try {
-                Truck truck = optionalTruck.get();
-                Warehouse warehouse = Warehouse.getInstance();
-                if (truck.isLoaded()) {
-                    Optional<Cargo> optional = truck.unload();
-                    LOGGER.log(Level.DEBUG, "Unloading truck...");
-                    result = warehouse.collect(optional.orElseThrow());
-                } else {
-                    Optional<Cargo> optional = warehouse.dispense();
-                    if (optional.isPresent()) {
-                        LOGGER.log(Level.DEBUG, "Loading truck...");
-                        result = truck.load(optional.get());
-                    }
+            Truck truck = optionalTruck.get();
+            Warehouse warehouse = Warehouse.getInstance();
+            if (truck.isLoaded()) {
+                Optional<Cargo> optionalCargo = truck.unload();
+                LOGGER.log(Level.DEBUG, "Unloading truck...");
+                result = warehouse.collect(optionalCargo.orElseThrow());
+            } else {
+                Optional<Cargo> optionalCargo = warehouse.dispense();
+                if (optionalCargo.isPresent()) {
+                    LOGGER.log(Level.DEBUG, "Loading truck...");
+                    result = truck.load(optionalCargo.get());
                 }
+            }
+            try {
                 TimeUnit.SECONDS.sleep(SERVICE_TIME_SECONDS);
-                LOGGER.log(Level.INFO, "Terminal has serviced the truck");
+                LOGGER.log(Level.INFO, "Terminal has serviced the truck " + truck.getTruckId());
             } catch (InterruptedException e) {
-                LOGGER.log(Level.ERROR, "Terminal thread has been interrupted.", e);
+                LOGGER.log(Level.INFO, "Terminal servicing has been interrupted", e);
+                truck.interrupt();
             }
         } else {
             LOGGER.log(Level.DEBUG, "No truck to service");
         }
         return result;
-    }
-
-    @Override
-    public void run() {
-
     }
 
     @Override
