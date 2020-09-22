@@ -86,7 +86,7 @@ public class Truck extends Thread {
                 }
             }
         }
-        while (!permission) {
+        while (!permission) { // todo observer
             try {
                 TimeUnit.SECONDS.sleep(TIMEOUT_BETWEEN_OFFERS_SECS);
             } catch (InterruptedException e) {
