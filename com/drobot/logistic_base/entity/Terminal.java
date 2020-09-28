@@ -5,13 +5,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Terminal extends Entity {
 
     private static final Logger LOGGER = LogManager.getLogger(Terminal.class);
     private Optional<Truck> optionalTruck = Optional.empty();
-    private final int SERVICE_TIME_SECONDS = 1;
+    private final int SERVICE_TIME_SECONDS = new Random().nextInt(1) + 1;
 
     public Terminal(int id) {
         super(id);
