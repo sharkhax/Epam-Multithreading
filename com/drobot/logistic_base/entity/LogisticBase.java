@@ -103,7 +103,7 @@ public class LogisticBase extends Thread {
                     LOGGER.log(Level.ERROR, "No free terminals, but semaphore permits truck to be serviced");
                 }
             } else {
-                LOGGER.log(Level.ERROR, "No truck in queue");
+                LOGGER.log(Level.ERROR, "Truck is null");
             }
         } catch (InterruptedException e) {
             if (terminal != null) {
@@ -127,13 +127,11 @@ public class LogisticBase extends Thread {
     @Override
     public void run() {
         while (!interrupted()) {
-            while (truckQueue.isEmpty()) {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(100);
-                    queueSemaphore.acquire();
-                } catch (InterruptedException e) {
-                    return;
-                }
+            try {
+                TimeUnit.MILLISECONDS.sleep(50);
+                queueSemaphore.acquire();
+            } catch (InterruptedException e) {
+                return;
             }
             try {
                 lock.lock();

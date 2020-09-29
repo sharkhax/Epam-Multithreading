@@ -68,15 +68,18 @@ public class Truck extends Entity implements Runnable {
     @Override
     public void run() {
         LogisticBase logisticBase = LogisticBase.getInstance();
-        logisticBase.offer(this);
-        try {
-            lock.lock();
-            condition.await();
-            logisticBase.service(this);
-        } catch (InterruptedException e) {
-            LOGGER.log(Level.ERROR, "Truck " + getId() + " is interrupted", e);
-        } finally {
-            lock.unlock();
+        if (logisticBase.offer(this)) {
+            try {
+                lock.lock();
+                condition.await();
+                logisticBase.service(this);
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.ERROR, "Truck " + getId() + " is interrupted", e);
+            } finally {
+                lock.unlock();
+            }
+        } else {
+            LOGGER.log(Level.ERROR, "Truck " + getId() + " hasn't been added to the queue");
         }
     }
 

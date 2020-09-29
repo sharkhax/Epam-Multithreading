@@ -56,6 +56,11 @@ public class Terminal extends Entity {
                 if (optionalCargo.isPresent()) {
                     Cargo cargo = optionalCargo.get();
                     truck.load(cargo);
+                    try {
+                        TimeUnit.SECONDS.sleep(SERVICE_TIME_SECONDS);
+                    } catch (InterruptedException e) {
+                        LOGGER.log(Level.WARN, Thread.currentThread().getName() + " is interrupted", e);
+                    }
                     result = true;
                 }
             }
